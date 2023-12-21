@@ -8,6 +8,7 @@
 #include "Creature.h"
 #include "botcommon.h"
 #include "botdatamgr.h"
+#include "botmgr.h"
 
 #include "AraxiaNpcBot.h"
 
@@ -24,12 +25,19 @@ class AraxiaNpcBotCommands : public CommandScript
         {
             static ChatCommandTable inventoryCommandTable =
             {
-                {"get", HandleGetInventory, 1, Console::No }
+                {"get", HandleGetInventory, 1, Console::No },
+                {"get z", HandleGetInventory, 1, Console::No }
+            };
+
+            static ChatCommandTable botsCommandTable =
+            {
+                {"list", HandleListBots, 1, Console::No }
             };
 
             static ChatCommandTable rootCommandTable =
             {
-                {"inv", inventoryCommandTable}
+                {"inv", inventoryCommandTable},
+                {"bots", botsCommandTable}
             };
 
             static ChatCommandTable araxiaNpcBotTable =
@@ -40,16 +48,24 @@ class AraxiaNpcBotCommands : public CommandScript
             return araxiaNpcBotTable;
         }
 
-        static bool HandleGetInventory(ChatHandler* handler)
+        static bool HandleGetInventory(ChatHandler* handler, Optional<uint32> botEntry)
         {
             Player* player = handler->GetPlayer();
-            Unit* target = player->GetSelectedUnit();
 
-            if (!target) {
-                return true;
+            uint32 entry;
+
+            if (!botEntry)
+            {
+                Unit* target = player->GetSelectedUnit();
+
+                if (!target) {
+                    return true;
+                }
+
+                entry = target->GetEntry();
+            } else {
+                entry = botEntry.value();
             }
-
-            uint32 entry = target->GetEntry();
 
             //handler->SendSysMessage("Target Id: " +
             //    std::to_string(entry));
@@ -113,6 +129,25 @@ class AraxiaNpcBotCommands : public CommandScript
             std::string inv = GetInventoryOutput(entry, itemList);
 
             handler->SendSysMessage(inv);
+
+            return true;
+        }
+
+        static bool HandleListBots(ChatHandler* handler)
+        {
+            Player* player = handler->GetPlayer();
+            BotMgr* playerBotMgr = player->GetBotMgr();
+            BotMap* playerBots = playerBotMgr->GetBotMap();
+
+            std::string output = "AraxiaNpcBot:bot.list";
+            for (auto const& bot : *playerBots)
+            {
+                output += "#" + bot.second->GetName()
+                    + ":"
+                    + std::to_string(bot.second->GetEntry());
+            }
+
+            handler->SendSysMessage(output);
 
             return true;
         }

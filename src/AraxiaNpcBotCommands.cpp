@@ -139,7 +139,7 @@ class AraxiaNpcBotCommands : public CommandScript
             BotMgr* playerBotMgr = player->GetBotMgr();
             BotMap* playerBots = playerBotMgr->GetBotMap();
 
-            std::string output = "AraxiaNpcBot:bot.list";
+            std::string output = "AraxiaNpcBot.bots.list";
             for (auto const& bot : *playerBots)
             {
                 output += "#" + bot.second->GetName()
@@ -154,7 +154,7 @@ class AraxiaNpcBotCommands : public CommandScript
 
         static std::string GetInventoryOutput(uint32 botEntry, std::map<std::string, uint32> items)
         {
-            std::string output = "AraxiaNpcBot:inv.get:" + std::to_string(botEntry) + "#";
+            std::string output = "AraxiaNpcBot.inv.get." + std::to_string(botEntry);
 
             // loop over all of the keys in items
             for (auto const& item : items)
@@ -164,7 +164,7 @@ class AraxiaNpcBotCommands : public CommandScript
                 // {
                 //     continue;
                 // }
-                output += item.first + ":" + std::to_string(item.second) + "#";
+                output += "#" + item.first + ":" + std::to_string(item.second);
             }
 
             // output += "mainhand:" + std::to_string(items["mainhand"]) + "#";
